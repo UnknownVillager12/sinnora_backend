@@ -10,7 +10,7 @@ export class AuthService {
   ) {}
   async signup(userData: Partial<IUser>): Promise<IUser> {
     const existingUser = await this.userRepository.findOne({
-      email: userData.email,
+      phoneNumber: userData.phoneNumber,
     });
 
     if (existingUser) {
@@ -19,7 +19,7 @@ export class AuthService {
 
     const newUser = await this.userRepository.create({
       ...userData,
-      email: userData.email,
+      phoneNumber: userData.phoneNumber,
       role: 'customer',
       isActive: true,
       emailVerified: false,
@@ -40,13 +40,14 @@ export class AuthService {
     const { phoneNumber } = loginCredentials;
     let user = await this.userRepository.findOne({ phoneNumber });
     if (!user)
-      user = await this.userRepository.create({
-        ...loginCredentials,
-        email: loginCredentials.email,
-        role: 'customer',
-        isActive: true,
-        emailVerified: false,
-      });
+      throw new AppError('User not found with the provided phone number', 404);
+      // user = await this.userRepository.create({
+      //   ...loginCredentials,
+      //   email: loginCredentials.email,
+      //   role: 'customer',
+      //   isActive: true,
+      //   emailVerified: false,
+      // });
     // pending: add password hashing
     // if (password && !(await bcrypt.compare(password, user.password)))
     //   throw new AppError('Invalid credentials', 404);
